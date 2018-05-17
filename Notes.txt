@@ -1,0 +1,134 @@
+RenJS Notes:
++ Assets needed are declared in Story/Setup.yaml
+    + Background: Big image behind everything
+    + Character: Character image with different looks (middle layer)
+    + CG: Computer Graphic (smaller than character, top layer)
+    + Music/SFX
+    + Extra: Assets needed for effects, ambients or anything else
++ Scripts are declared in Story/YourStory.yaml
+    + Multiple scenes are contained in a single yaml file
+    + Scene name is typed WITHOUT indentation (like 'start:')
+    + Each action in a scene must begin with '- ' (like '- play morningBGM:')
+    + Each action name is ended with ':', after that, you can add more parameter (like '- show school_morning: WITH FADE')
++ Variable can be declared in yaml file with this syntax: 'var $var_name: $value'
+    + Variable can be used later within curly braces ({}) like this: {score}
+    + Assigning new value to a variable is similar to declaring it, but without 'var'
+    + If the assigning value is too complicated, put them between paretheses ("") like this: canRead: "{lightOn} || {lampOn}"
+    + You can use many operators with variable: + - * / ! && || < <= == > >=
++ See Chapter 6 to know more about GUI made for RenJS.
+
+
+------------------------------------------------------
+Basic syntax:
+    '- show $background: [WITH $transition]':
+        $transition = ['CUT', 'FADE', 'FUSION', 'MOVE', 'FADETOBLACK', 'FADETOWHITE']
+        You can add more transition in RenJS/Transitions.js.
+    '- show $character: [$look] [AT $position] [WITH $transition]'
+        $look is defined in Setup.yaml.
+        $position = ['LEFT', 'CENTER', 'RIGHT'] or 'x,y'
+        Additional parameter on new line: 'flipped: $bool' to flip character horizontally
+    '-show $cg: [AT $x,$y] [WITH $transition]'
+        CG must have specific position -> can't use LEFT, CENTER, RIGHT as character
+    '- hide $image: [WITH $transition]'
+        $image can be background, character, CG
+    '- $character says: $text'
+    '- text: $text'
+        Text without character (eg: phone)
+    '- play $music: [WITH $transition]'
+        $music can be $sfx too
+    '- stop $music: [WITH $transition]'
+        $music can be $sfx too
+    '- effect $effect_type:'
+        $effect_type = ['SHAKE', 'SOUND', 'ROLLINGCREDITS', 'SHOWTITLE', 'FLASHIMAGE', 'EXPLOSION', 'THUNDER', 'ATTACK', 'MULTIATTACK', 'CHAINATTACK'] and can have additional parameters on new lines.
+        You can add more effect in ReJS/Effect.js.
+        Effect is shown once, and when it ends, other actions can go on.
+    '- ambient $ambient_type:'
+        Long time effect. Other actions don't wait for this action to end. Need to call 'ambient CLEAR:' to stop current ambient effect.
+        $ambient_type = ['RAIN', 'SAKURA', 'BADTRIP', 'DRUG', 'SNOW']
+        Special $ambient_type:
+            CLEAR: stop current ambient effect
+            BGS: Unknown yet
+            STATIC: Unknown yet
+    '- scene: $scene_name'
+        Switch to another scene
+    '- wait: $duration'
+        Wait for $duration before cotinuing
+        if $duration = 'click', then wait until player clicks
+    '- animate $cg: $tween $time'
+        Animate a CG by tween options and in $time. See RenJS/CGSManager.js:animate for more info.
+    '- jsScript: $function'
+        Execute 'function()' without parameter.
+    '- call $function: $parameters'
+        Execute RenJS.customContent.$function( $parameters ).
+        You can add more functions in RenJS/CustomContent.js.
+
+    See more in RenJS/StoryManager.js
+
+
+------------------------------------------------------
+Advanced syntax
+    '- choice:
+      - $choice_A:
+        $whatever_happens_if_player_chooses_A
+      - $choice_B:
+        $whatever_happens_if_player_chooses_B
+    '
+        This decision tree can be deep with many nested levels.
+        If it's too complicated, think of using action 'scene' to move to other scene. But remember: you can't go back to this scene (like 'return' in programming)
+
+    '- visualchoice:
+      - $image_A AT xA,yA:
+      $whatever_happens_if_player_chooses_A
+      - $image_B AT xB,yB:
+        $whatever_happens_if_player_chooses_B
+    '
+        Similar to '- choice', but using images instead of texts.
+
+    '- if ($formula):
+       - $whatever_happens_if_formula_returns_true
+     - else:
+       - $whatever_happens_if_formula_returns_false
+    '
+        Basic if/else for programmers, can be a bit cofusing to writers.
+        Remember the indentation to indicate if/else pair.
+
+
+------------------------------------------------------
+Below is placeholder for Setup.yaml
+
+setup:
+  backgrounds:
+    bus_station: assets/backgrounds/bus_station_afternoon.jpg
+    room: assets/backgrounds/room_day.jpg
+    room_night: assets/backgrounds/room_night.jpg
+  characters:
+    deuzi:
+      displayName: Deuzilene
+      speechColour: "#ca90cf"
+      looks:
+        normal: assets/characters/Char3NormalSchool.png
+        happy: assets/characters/Char3HappySchool.png
+        angry: assets/characters/Char3AngrySchool.png
+  cgs:
+    phone1: assets/objects/phone1.png
+    phone2: assets/objects/phone2.png
+    folders: assets/lessons/folders.png
+  music:
+    rollingCredits: assets/audio/Evan_Schaeffer_-_01_-_Aqueduct.mp3
+    morningBGM: assets/audio/Evan_Schaeffer_-_03_-_Glow.mp3
+    storeBGM: assets/audio/Evan_Schaeffer_-_18_-_Big_Tree.mp3
+  sfx:
+    ringtoneSFX: assets/audio/nokia6210-24-elise.mp3
+    ringtoneSFX2: assets/audio/alcatel-top_secret.mp3
+    thunderSFX: assets/audio/thunder_strike_1.mp3
+  extra:
+    image:
+      title: assets/gui/titles.png
+      rain: assets/ambient/rain.png
+      thunder: assets/effects/Thunder_Effect.png
+    # spritesheets:
+    #   explosion: assets/effects/explosion.png 450 274
+    #   static: assets/ambient/static.png 320 256
+    # scripts:
+    #   marble: assets/ambient/Marble.js
+    #   lightbeam: assets/ambient/LightBeam.js
